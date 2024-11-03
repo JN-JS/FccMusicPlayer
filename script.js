@@ -77,3 +77,7 @@ const allSongs = [
       src: "https://cdn.freecodecamp.org/curriculum/js-music-player/chasing-that-feeling.mp3",
     },
   ];
+
+	// create audio in HTML
+  const audio = new Audio();
+
