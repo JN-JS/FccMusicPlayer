@@ -81,3 +81,13 @@ const allSongs = [
 	// create audio in HTML
   const audio = new Audio();
 
+	// keep track of the current song
+	// need object to store data
+	// create a copy of the allSongs array without mutating the original
+	// using ...Spread (spread operator)
+	let userData = {
+		songs: [...allSongs],
+		currentSong: null,
+  	songCurrentTime: 0,
+	};
+
