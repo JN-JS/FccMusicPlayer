@@ -109,5 +109,7 @@ const allSongs = [
       </button>
       </li>
       `;
-		});
+			// join() method is used to concatenate all the elements of an array into a single string
+			// takes an optional parameter called a separator
+		}).join("");
 	};
