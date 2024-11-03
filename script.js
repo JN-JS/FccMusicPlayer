@@ -112,4 +112,6 @@ const allSongs = [
 			// join() method is used to concatenate all the elements of an array into a single string
 			// takes an optional parameter called a separator
 		}).join("");
+		// will insert the li element you just created into the ul element in the already provided HTML file
+		playlistSongs.innerHTML = songsHTML;
 	};
