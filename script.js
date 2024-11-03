@@ -115,3 +115,8 @@ const allSongs = [
 		// will insert the li element you just created into the ul element in the already provided HTML file
 		playlistSongs.innerHTML = songsHTML;
 	};
+
+	// need to call the renderSongs function and pass in userData?.songs 
+	// in order to finally display the songs in the UI
+	// Optional chaining (?.) helps prevent errors when accessing nested properties that might be null or undefined
+	renderSongs(userData?.songs);
