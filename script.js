@@ -98,7 +98,7 @@ const allSongs = [
 			// display song details
 			return `
       <li id="song-${song.id}" class="playlist-song">
-      <button class="playlist-song-info">
+      <button class="playlist-song-info" onclick="playSong(${song.id})">
           <span class="playlist-song-title">${song.title}</span>
           <span class="playlist-song-artist">${song.artist}</span>
           <span class="playlist-song-duration">${song.duration}</span>
@@ -115,6 +115,20 @@ const allSongs = [
 		// will insert the li element you just created into the ul element in the already provided HTML file
 		playlistSongs.innerHTML = songsHTML;
 	};
+
+	// will play the current song when it is clicked on
+	playButton.addEventListener("click", () => {
+		// checks if current song is null
+		if(userData?.currentSong === null) {
+			// ensure the first song in the playlist is played first
+			playSong(userData?.songs[0].id)
+		} else {
+			// This ensures that the currently playing song will continue to play when the play button is clicked.
+			playSong(userData?.currentSong.id)
+		}
+
+	});
+
 
 	const sortSongs = () => {
 		// sort() method converts elements of an array into strings 
@@ -140,6 +154,33 @@ const allSongs = [
 			return 0;
 		});
 		return userData?.songs;
+	};
+
+	// implementing the functionality for playing the displayed songs
+	const playSong = (id) => {
+		// The find() method retrieves the first element within an array that fulfills the conditions specified in the provided callback function, else undefined
+		const song = userData?.songs.find((song) => song.id === id);
+		// tells the audio element where to find the audio data for the selected song
+		audio.src = song.src;
+		// tells the audio element what to display as the title of the song
+		audio.title = song.title;
+		// make sure it starts from the beginning
+
+		// This condition will check if no current song is playing or if the current song is different from the one that is about to be played
+		if(userData?.currentSong === null || userData?.currentSong.id !== song.id) {
+			audio.currentTime = 0;
+		} else {
+			// handle the song's current playback time
+			// this allows you to resume the current song at the point where it was paused
+			audio.currentTime = userData?.songCurrentTime;
+		}
+		// update current song being played
+		userData.currentSong = song;
+		// add class "playing" to playButton
+		playButton.classList.add("playing");
+		// play the song
+		// play() is a method from the web audio API for playing an mp3 file
+		audio.play();
 	};
 
 	// need to call the renderSongs function and pass in userData?.songs 
