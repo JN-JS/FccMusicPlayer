@@ -126,8 +126,8 @@ const allSongs = [
 			// This ensures that the currently playing song will continue to play when the play button is clicked.
 			playSong(userData?.currentSong.id)
 		}
-
 	});
+	pauseButton.addEventListener("click", pauseSong);
 
 
 	const sortSongs = () => {
@@ -182,6 +182,16 @@ const allSongs = [
 		// play() is a method from the web audio API for playing an mp3 file
 		audio.play();
 	};
+
+	// Pausing currently played song
+	const pauseSong = () => {
+		// store the current time of the song when it is paused
+		userData.songCurrentTime = audio.currentTime
+		// remove class playing from playButton cause song is paused
+		playButton.classList.remove("playing");
+		// pause the song
+		audio.pause()
+	}
 
 	// need to call the renderSongs function and pass in userData?.songs 
 	// in order to finally display the songs in the UI
