@@ -135,6 +135,8 @@ const allSongs = [
 		}
 	});
 	pauseButton.addEventListener("click", pauseSong);
+	nextButton.addEventListener("click", playNextSong);
+	previousButton.addEventListener("click", playPreviousSong);
 
 
 	const sortSongs = () => {
@@ -210,6 +212,18 @@ const allSongs = [
 			// retrieve the next song in the playlist
 			const nextSong = userData?.songs[currentSongIndex + 1]
 			playSong(nextSong.id)
+		}
+	};
+
+	const playPreviousSong = () => {
+		// check if there is currently no song playing, if there's none return
+		if(userData?.currentSong === null) {
+			return
+		} else {
+			const currentSongIndex = getCurrentSongIndex();
+			const previousSong = userData?.songs[currentSongIndex - 1];
+
+    	playSong(previousSong.id);
 		}
 	};
 
