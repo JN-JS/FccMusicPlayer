@@ -115,6 +115,13 @@ const allSongs = [
 		// will insert the li element you just created into the ul element in the already provided HTML file
 		playlistSongs.innerHTML = songsHTML;
 	};
+	// need to get the index of each song in the songs property of userData
+	// get the index for the current song, you can use the indexOf() method
+	// The indexOf() array method returns the first index at which a given element can be found in the array
+	// or -1 if the element is not present
+	const getCurrentSongIndex = () => {
+		return userData?.songs.indexOf(userData?.currentSong)
+	};
 
 	// will play the current song when it is clicked on
 	playButton.addEventListener("click", () => {
@@ -192,6 +199,19 @@ const allSongs = [
 		// pause the song
 		audio.pause()
 	}
+
+	const playNextSong = () => {
+		// check if there's no current song playing in the userData object
+		if(userData?.currentSong === null) {
+			// call the playSong function with the id of the first song
+			playSong(userData?.songs[0].id)
+		} else {
+			const currentSongIndex = getCurrentSongIndex();
+			// retrieve the next song in the playlist
+			const nextSong = userData?.songs[currentSongIndex + 1]
+			playSong(nextSong.id)
+		}
+	};
 
 	// need to call the renderSongs function and pass in userData?.songs 
 	// in order to finally display the songs in the UI
