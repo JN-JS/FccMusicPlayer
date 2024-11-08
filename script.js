@@ -91,6 +91,8 @@ const allSongs = [
   	songCurrentTime: 0,
 	};
 
+
+
 	const renderSongs = (array) => {
 		// using map to iterate through array and return new array
 		// callback function -> function that is passed to another function as an argument
@@ -109,12 +111,14 @@ const allSongs = [
       </button>
       </li>
       `;
+			
 			// join() method is used to concatenate all the elements of an array into a single string
 			// takes an optional parameter called a separator
 		}).join("");
 		// will insert the li element you just created into the ul element in the already provided HTML file
 		playlistSongs.innerHTML = songsHTML;
 	};
+
 	// need to get the index of each song in the songs property of userData
 	// get the index for the current song, you can use the indexOf() method
 	// The indexOf() array method returns the first index at which a given element can be found in the array
@@ -137,7 +141,6 @@ const allSongs = [
 	pauseButton.addEventListener("click", pauseSong);
 	nextButton.addEventListener("click", playNextSong);
 	previousButton.addEventListener("click", playPreviousSong);
-
 
 	const sortSongs = () => {
 		// sort() method converts elements of an array into strings 
@@ -187,6 +190,8 @@ const allSongs = [
 		userData.currentSong = song;
 		// add class "playing" to playButton
 		playButton.classList.add("playing");
+		// call func to hightlight the current song
+		highlightCurrentSong();
 		// play the song
 		// play() is a method from the web audio API for playing an mp3 file
 		audio.play();
@@ -226,6 +231,22 @@ const allSongs = [
     	playSong(previousSong.id);
 		}
 	};
+
+	// highlight selected song
+	const highlightCurrentSong = () => {
+		const playlistSongElements = document.querySelectorAll(".playlist-song");
+		// get the id of the current song
+		const songToHighlight = document.getElementById(`song-${userData?.currentSong?.id}`);
+		
+		playlistSongElements.forEach((songEl) => {
+		  songEl.removeAttribute("aria-current");
+		});
+		// add the attribute back to the currently playing song
+		if(songToHighlight) {
+			songToHighlight.setAttribute("aria-current", "true");
+		};
+	};
+
 
 	// need to call the renderSongs function and pass in userData?.songs 
 	// in order to finally display the songs in the UI
