@@ -194,6 +194,9 @@ const allSongs = [
 		highlightCurrentSong();
 		// play the song
 		// play() is a method from the web audio API for playing an mp3 file
+		// to ensure the player's display updates whenever a new song begins playing
+		setPlayerDisplay();
+  	playSong();
 		audio.play();
 	};
 
@@ -230,6 +233,20 @@ const allSongs = [
 
     	playSong(previousSong.id);
 		}
+	};
+
+	// display current song title & artist in the player
+	const setPlayerDisplay = () => {
+		// get HTML elements that display song artist and title
+		const playingSong = document.getElementById("player-song-title");
+  	const songArtist = document.getElementById("player-song-artist");
+		// get data Object
+		const currentTitle = userData?.currentSong?.title;
+		const currentArtist = userData?.currentSong?.artist;
+		// ternary operator to conditionally set the text content value
+		// textContent sets the text of a node and allows you to set or retrieve the text content of an HTML element
+		playingSong.textContent = currentTitle ? currentTitle : "";
+  	songArtist.textContent = currentArtist ? currentArtist : "";
 	};
 
 	// highlight selected song
