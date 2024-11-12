@@ -119,6 +119,16 @@ const allSongs = [
 		playlistSongs.innerHTML = songsHTML;
 	};
 
+	// make the application more accessible, the play button describes the current song or the first song in the playlist
+	const setPlayButtonAccessibleText = () => {
+		// access song currently being played or 1st song in playlist
+		const song = userData?.currentSong || userData?.songs[0];
+		// set the aria-label attribute to the current song, or to the first song in the playlist
+		// if the playlist is empty, it sets the aria-label to "Play"
+		// Using a ternary, set the attribute value to Play song title or "Play" if song title is not available
+		playButton.setAttribute("aria-label", song?.title ? `Play${song.title}` : "Play")
+	};
+
 	// need to get the index of each song in the songs property of userData
 	// get the index for the current song, you can use the indexOf() method
 	// The indexOf() array method returns the first index at which a given element can be found in the array
@@ -192,11 +202,13 @@ const allSongs = [
 		playButton.classList.add("playing");
 		// call func to hightlight the current song
 		highlightCurrentSong();
-		// play the song
-		// play() is a method from the web audio API for playing an mp3 file
 		// to ensure the player's display updates whenever a new song begins playing
 		setPlayerDisplay();
-  	playSong();
+		// describe current song
+		setPlayButtonAccessibleText();
+		// play the song
+		playSong();
+		// play() is a method from the web audio API for playing an mp3 file
 		audio.play();
 	};
 
