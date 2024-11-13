@@ -151,6 +151,7 @@ const allSongs = [
 	pauseButton.addEventListener("click", pauseSong);
 	nextButton.addEventListener("click", playNextSong);
 	previousButton.addEventListener("click", playPreviousSong);
+	shuffleButton.addEventListener("click", shuffle);
 
 	const sortSongs = () => {
 		// sort() method converts elements of an array into strings 
@@ -246,6 +247,26 @@ const allSongs = [
     	playSong(previousSong.id);
 		}
 	};
+
+	// responsible for shuffling the songs in the playlist and performing necessary state management updates after the shuffling
+	const shuffle = () => {
+		// Another use case for the callback function[sort()] is to randomize an array
+		// One way would be to subtract 0.5 from Math.random() which produces random values that are either positive or negative
+		// This makes the comparison result a mix of positive and negative values, leading to a random ordering of elements
+		userData?.songs.sort(() => Math.random() - 0.5);
+		// When the shuffle button is pressed, you want to set the currentSong to nothing and the songCurrentTime to 0
+		userData.currentSong = null;
+  	userData.songCurrentTime = 0;
+		// re-render the songs, pause the currently playing song, set the player display, and set the play button accessible text again
+		renderSongs(userData?.songs);
+		pauseSong();
+		setPlayerDisplay();
+		setPlayButtonAccessibleText();
+	};
+
+	// delete functionality for the playlist. This would manage the removal of a song from the playlist,
+	// handle other related actions when a song is deleted, and create a Reset Playlist button
+	
 
 	// display current song title & artist in the player
 	const setPlayerDisplay = () => {
