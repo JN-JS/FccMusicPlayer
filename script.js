@@ -264,10 +264,6 @@ const allSongs = [
 		setPlayButtonAccessibleText();
 	};
 
-	// delete functionality for the playlist. This would manage the removal of a song from the playlist,
-	// handle other related actions when a song is deleted, and create a Reset Playlist button
-	
-
 	// display current song title & artist in the player
 	const setPlayerDisplay = () => {
 		// get HTML elements that display song artist and title
