@@ -152,6 +152,25 @@ const allSongs = [
 	nextButton.addEventListener("click", playNextSong);
 	previousButton.addEventListener("click", playPreviousSong);
 	shuffleButton.addEventListener("click", shuffle);
+	// event listener which will detect when the currently playing song ends
+	audio.addEventListener("ended", () => {
+		// need to check if there is a next song to play
+		// Retrieve the current song index 
+		const currentSongIndex = getCurrentSongIndex();
+		// true or false depending on if the next song exists
+		// userData.songs.length - 1 > currentSongIndex, there is another song
+		// const nextSongExists = userData.songs.length - 1 > currentSongIndex ? true : false;
+		// FCC correction
+		const nextSongExists = userData?.songs[currentSongIndex + 1] !== undefined;
+		// This will automatically play the next song when the current song ends
+		if(nextSongExists) {
+			playNextSong();
+		} else {
+			// reset 
+			userData.currentSong = null;
+			userData.songCurrentTime = 0;
+		}
+	});
 
 	const sortSongs = () => {
 		// sort() method converts elements of an array into strings 
