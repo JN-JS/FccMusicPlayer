@@ -1,9 +1,9 @@
-const playlistSongs = document.getElementById('playlist-songs');
-const playButton = document.getElementById('play');
-const pauseButton = document.getElementById('pause');
-const nextButton = document.getElementById('next');
-const previousButton = document.getElementById('previous');
-const shuffleButton = document.getElementById('shuffle');
+const playlistSongs = document.getElementById("playlist-songs");
+	const playButton = document.getElementById("play");
+	const pauseButton = document.getElementById("pause");
+	const nextButton = document.getElementById("next");
+	const previousButton = document.getElementById("previous");
+	const shuffleButton = document.getElementById("shuffle");
 
 const allSongs = [
     {
@@ -91,7 +91,172 @@ const allSongs = [
   	songCurrentTime: 0,
 	};
 
+	// implementing the functionality for playing the displayed songs
+	const playSong = (id) => {
+		// The find() method retrieves the first element within an array that fulfills the conditions specified in the provided callback function, else undefined
+		const song = userData?.songs.find((song) => song.id === id);
+		// tells the audio element where to find the audio data for the selected song
+		audio.src = song.src;
+		// tells the audio element what to display as the title of the song
+		audio.title = song.title;
+		// make sure it starts from the beginning
 
+		// This condition will check if no current song is playing or if the current song is different from the one that is about to be played
+		if(userData?.currentSong === null || userData?.currentSong.id !== song.id) {
+			audio.currentTime = 0;
+		} else {
+			// handle the song's current playback time
+			// this allows you to resume the current song at the point where it was paused
+			audio.currentTime = userData?.songCurrentTime;
+		}
+		// update current song being played
+		userData.currentSong = song;
+		// add class "playing" to playButton
+		playButton.classList.add("playing");
+		// call func to hightlight the current song
+		highlightCurrentSong();
+		// to ensure the player's display updates whenever a new song begins playing
+		setPlayerDisplay();
+		// describe current song
+		setPlayButtonAccessibleText();
+		// play the song
+		playSong();
+		// play() is a method from the web audio API for playing an mp3 file
+		audio.play();
+	};
+
+	// Pausing currently played song
+	const pauseSong = () => {
+		// store the current time of the song when it is paused
+		userData.songCurrentTime = audio.currentTime
+		// remove class playing from playButton cause song is paused
+		playButton.classList.remove("playing");
+		// pause the song
+		audio.pause()
+	};
+
+	const playNextSong = () => {
+		// check if there's no current song playing in the userData object
+		if(userData?.currentSong === null) {
+			// call the playSong function with the id of the first song
+			playSong(userData?.songs[0].id)
+		} else {
+			const currentSongIndex = getCurrentSongIndex();
+			// retrieve the next song in the playlist
+			const nextSong = userData?.songs[currentSongIndex + 1]
+			playSong(nextSong.id)
+		}
+	};
+
+	const playPreviousSong = () => {
+		// check if there is currently no song playing, if there's none return
+		if(userData?.currentSong === null) {
+			return
+		} else {
+			const currentSongIndex = getCurrentSongIndex();
+			const previousSong = userData?.songs[currentSongIndex - 1];
+
+    	playSong(previousSong.id);
+		}
+	};
+
+		// responsible for shuffling the songs in the playlist and performing necessary state management updates after the shuffling
+		const shuffle = () => {
+			// Another use case for the callback function[sort()] is to randomize an array
+			// One way would be to subtract 0.5 from Math.random() which produces random values that are either positive or negative
+			// This makes the comparison result a mix of positive and negative values, leading to a random ordering of elements
+			userData?.songs.sort(() => Math.random() - 0.5);
+			// When the shuffle button is pressed, you want to set the currentSong to nothing and the songCurrentTime to 0
+			userData.currentSong = null;
+			userData.songCurrentTime = 0;
+			// re-render the songs, pause the currently playing song, set the player display, and set the play button accessible text again
+			renderSongs(userData?.songs);
+			pauseSong();
+			setPlayerDisplay();
+			setPlayButtonAccessibleText();
+		};
+	
+		// delete functionality for the playlist. This would manage the removal of a song from the playlist,
+		// handle other related actions when a song is deleted, and create a Reset Playlist button
+		const deleteSong = (id) => {
+			// heck if the song is currently playing. If it is, you need to pause the song and play the next song 
+			if(userData?.currentSong?.id === id) {
+				// re-init
+				userData.currentSong = null;
+				userData.songCurrentTime = 0;
+				// stop the playback
+				pauseSong();
+				// update the player display
+				setPlayerDisplay();
+			};
+			// the filter method keeps only the elements of an array that satisfy the callback function passed to it
+			userData.songs = userData?.songs.filter((song) => song.id !== id);
+			// re-render the songs, highlight it and set the play button's accessible text since the song list will change
+			renderSongs(userData?.songs);
+			highlightCurrentSong();
+			setPlayButtonAccessibleText();
+	
+			// check if the playlist is empty, if it is, reset the userData object to its original state
+			if(userData?.songs.length === 0) {
+				// createElement() is a DOM method you can use to dynamically create an element using JavaScript
+				// to use createElement(), you call it, then pass in the tag name as a string
+				const resetButton = document.createElement("button");
+				// need to assign it a text. To do this, you need to use the createTextNode() method of DOM
+				// createTextNode() method is used to create a text node. To use it, you call it and pass in the text as a string
+				const resetText = document.createTextNode("Reset Playlist");
+				// assign it an id and aria-label attributes. JavaScript provides the id and ariaLabel properties you need to use for this
+				resetButton.id = "reset";
+				resetButton.ariaLabel = "Reset playlist";
+				// need to add the resetText to the resetButton element as a child
+				// also the resetButton to the playlistSongs element as a child
+				// there is an appendChild() method to use
+				// appendChild() lets you add a node or an element as the child of another element
+				resetButton.appendChild(resetText);
+				playlistSongs.appendChild(resetButton);
+				// add the reset functionality to the resetButton. This will bring back the songs in the playlist when clicked
+				resetButton.addEventListener("click", () => {
+					// reset the playlist to its original state, spread allSongs into an array and assign it
+					userData.songs = [...allSongs];
+					// render the songs again, update the play button's accessible text, and remove the reset button from the playlist
+					// also need to remove the resetButton from the DOM
+					// Call the renderSongs() function with sortSongs() as an argument to render the songs again in alphabetical order
+					renderSongs(sortSongs());
+					// Call the setPlayButtonAccessibleText() function to update the play button's accessible text
+					setPlayButtonAccessibleText();
+					// Remove the reset button from the playlist by calling the remove() method on the resetButton variable
+					resetButton.remove();
+				});
+			};
+		};
+	
+		// display current song title & artist in the player
+		const setPlayerDisplay = () => {
+			// get HTML elements that display song artist and title
+			const playingSong = document.getElementById("player-song-title");
+			const songArtist = document.getElementById("player-song-artist");
+			// get data Object
+			const currentTitle = userData?.currentSong?.title;
+			const currentArtist = userData?.currentSong?.artist;
+			// ternary operator to conditionally set the text content value
+			// textContent sets the text of a node and allows you to set or retrieve the text content of an HTML element
+			playingSong.textContent = currentTitle ? currentTitle : "";
+			songArtist.textContent = currentArtist ? currentArtist : "";
+		};
+	
+		// highlight selected song
+		const highlightCurrentSong = () => {
+			const playlistSongElements = document.querySelectorAll(".playlist-song");
+			// get the id of the current song
+			const songToHighlight = document.getElementById(`song-${userData?.currentSong?.id}`);
+			
+			playlistSongElements.forEach((songEl) => {
+				songEl.removeAttribute("aria-current");
+			});
+			// add the attribute back to the currently playing song
+			if(songToHighlight) 
+				songToHighlight.setAttribute("aria-current", "true");
+			
+		};
 
 	const renderSongs = (array) => {
 		// using map to iterate through array and return new array
@@ -203,178 +368,10 @@ const allSongs = [
 		return userData?.songs;
 	};
 
-	// implementing the functionality for playing the displayed songs
-	const playSong = (id) => {
-		// The find() method retrieves the first element within an array that fulfills the conditions specified in the provided callback function, else undefined
-		const song = userData?.songs.find((song) => song.id === id);
-		// tells the audio element where to find the audio data for the selected song
-		audio.src = song.src;
-		// tells the audio element what to display as the title of the song
-		audio.title = song.title;
-		// make sure it starts from the beginning
-
-		// This condition will check if no current song is playing or if the current song is different from the one that is about to be played
-		if(userData?.currentSong === null || userData?.currentSong.id !== song.id) {
-			audio.currentTime = 0;
-		} else {
-			// handle the song's current playback time
-			// this allows you to resume the current song at the point where it was paused
-			audio.currentTime = userData?.songCurrentTime;
-		}
-		// update current song being played
-		userData.currentSong = song;
-		// add class "playing" to playButton
-		playButton.classList.add("playing");
-		// call func to hightlight the current song
-		highlightCurrentSong();
-		// to ensure the player's display updates whenever a new song begins playing
-		setPlayerDisplay();
-		// describe current song
-		setPlayButtonAccessibleText();
-		// play the song
-		playSong();
-		// play() is a method from the web audio API for playing an mp3 file
-		audio.play();
-	};
-
-	// Pausing currently played song
-	const pauseSong = () => {
-		// store the current time of the song when it is paused
-		userData.songCurrentTime = audio.currentTime
-		// remove class playing from playButton cause song is paused
-		playButton.classList.remove("playing");
-		// pause the song
-		audio.pause()
-	}
-
-	const playNextSong = () => {
-		// check if there's no current song playing in the userData object
-		if(userData?.currentSong === null) {
-			// call the playSong function with the id of the first song
-			playSong(userData?.songs[0].id)
-		} else {
-			const currentSongIndex = getCurrentSongIndex();
-			// retrieve the next song in the playlist
-			const nextSong = userData?.songs[currentSongIndex + 1]
-			playSong(nextSong.id)
-		}
-	};
-
-	const playPreviousSong = () => {
-		// check if there is currently no song playing, if there's none return
-		if(userData?.currentSong === null) {
-			return
-		} else {
-			const currentSongIndex = getCurrentSongIndex();
-			const previousSong = userData?.songs[currentSongIndex - 1];
-
-    	playSong(previousSong.id);
-		}
-	};
-
-	// responsible for shuffling the songs in the playlist and performing necessary state management updates after the shuffling
-	const shuffle = () => {
-		// Another use case for the callback function[sort()] is to randomize an array
-		// One way would be to subtract 0.5 from Math.random() which produces random values that are either positive or negative
-		// This makes the comparison result a mix of positive and negative values, leading to a random ordering of elements
-		userData?.songs.sort(() => Math.random() - 0.5);
-		// When the shuffle button is pressed, you want to set the currentSong to nothing and the songCurrentTime to 0
-		userData.currentSong = null;
-  	userData.songCurrentTime = 0;
-		// re-render the songs, pause the currently playing song, set the player display, and set the play button accessible text again
-		renderSongs(userData?.songs);
-		pauseSong();
-		setPlayerDisplay();
-		setPlayButtonAccessibleText();
-	};
-
-	// delete functionality for the playlist. This would manage the removal of a song from the playlist,
-	// handle other related actions when a song is deleted, and create a Reset Playlist button
-	const deleteSong = (id) => {
-		// heck if the song is currently playing. If it is, you need to pause the song and play the next song 
-		if(userData?.currentSong?.id === id) {
-			// re-init
-			userData.currentSong = null;
-			userData.songCurrentTime = 0;
-			// stop the playback
-			pauseSong();
-			// update the player display
-			setPlayerDisplay();
-		};
-		// the filter method keeps only the elements of an array that satisfy the callback function passed to it
-		userData.songs = userData?.songs.filter((song) => song.id !== id);
-		// re-render the songs, highlight it and set the play button's accessible text since the song list will change
-		renderSongs(userData?.songs);
-		highlightCurrentSong();
-		setPlayButtonAccessibleText();
-
-		// check if the playlist is empty, if it is, reset the userData object to its original state
-		if(userData?.songs.length === 0) {
-			// createElement() is a DOM method you can use to dynamically create an element using JavaScript
-			// to use createElement(), you call it, then pass in the tag name as a string
-			const resetButton = document.createElement("button");
-			// need to assign it a text. To do this, you need to use the createTextNode() method of DOM
-			// createTextNode() method is used to create a text node. To use it, you call it and pass in the text as a string
-			const resetText = document.createTextNode("Reset Playlist");
-			// assign it an id and aria-label attributes. JavaScript provides the id and ariaLabel properties you need to use for this
-			resetButton.id = "reset";
-			resetButton.ariaLabel = "Reset playlist";
-			// need to add the resetText to the resetButton element as a child
-			// also the resetButton to the playlistSongs element as a child
-			// there is an appendChild() method to use
-			// appendChild() lets you add a node or an element as the child of another element
-			resetButton.appendChild(resetText);
-			playlistSongs.appendChild(resetButton);
-			// add the reset functionality to the resetButton. This will bring back the songs in the playlist when clicked
-			resetButton.addEventListener("click", () => {
-				// reset the playlist to its original state, spread allSongs into an array and assign it
-				userData.songs = [...allSongs];
-				// render the songs again, update the play button's accessible text, and remove the reset button from the playlist
-				// also need to remove the resetButton from the DOM
-				// Call the renderSongs() function with sortSongs() as an argument to render the songs again in alphabetical order
-				renderSongs(sortSongs());
-				// Call the setPlayButtonAccessibleText() function to update the play button's accessible text
-				setPlayButtonAccessibleText();
-				// Remove the reset button from the playlist by calling the remove() method on the resetButton variable
-				resetButton.remove();
-			});
-		};
-	};
-
-	// display current song title & artist in the player
-	const setPlayerDisplay = () => {
-		// get HTML elements that display song artist and title
-		const playingSong = document.getElementById("player-song-title");
-  	const songArtist = document.getElementById("player-song-artist");
-		// get data Object
-		const currentTitle = userData?.currentSong?.title;
-		const currentArtist = userData?.currentSong?.artist;
-		// ternary operator to conditionally set the text content value
-		// textContent sets the text of a node and allows you to set or retrieve the text content of an HTML element
-		playingSong.textContent = currentTitle ? currentTitle : "";
-  	songArtist.textContent = currentArtist ? currentArtist : "";
-	};
-
-	// highlight selected song
-	const highlightCurrentSong = () => {
-		const playlistSongElements = document.querySelectorAll(".playlist-song");
-		// get the id of the current song
-		const songToHighlight = document.getElementById(`song-${userData?.currentSong?.id}`);
-		
-		playlistSongElements.forEach((songEl) => {
-		  songEl.removeAttribute("aria-current");
-		});
-		// add the attribute back to the currently playing song
-		if(songToHighlight) {
-			songToHighlight.setAttribute("aria-current", "true");
-		};
-	};
-
-
 	// need to call the renderSongs function and pass in userData?.songs 
 	// in order to finally display the songs in the UI
 	// Optional chaining (?.) helps prevent errors when accessing nested properties that might be null or undefined
 	renderSongs(sortSongs());
-
+	setPlayButtonAccessibleText();
 
 
